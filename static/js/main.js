@@ -4,7 +4,7 @@ $(document).ready(function() {
         previewsContainer: "#previews",
         clickable: "#clickable",
         success: function(file, response) {
-            // Do nothing?
+            window.location = response;
         }
     });
 });

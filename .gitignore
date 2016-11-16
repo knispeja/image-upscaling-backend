@@ -31,9 +31,6 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 
-# Translations
-*.mo`
-
-# Uploads and downloads folders
-uploads/
-downloads/
+# Image folders
+static/uploaded/
+static/upscaled/
