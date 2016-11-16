@@ -23,6 +23,7 @@ import os.path
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploaded'
+app.config['UPSCALE_FOLDER'] = 'static/upscaled'
 
 @app.route('/api', methods=['POST'])
 def upscaler():
@@ -31,13 +32,15 @@ def upscaler():
         if file:
             print("File uploaded for upscaling", file=sys.stderr)
             now = datetime.now()
-            filename = os.path.join(app.config['UPLOAD_FOLDER'], "%s.%s" % (now.strftime("%Y-%m-%d-%H-%M-%S-%f"), file.filename.rsplit('.', 1)[1]))
-            file.save(filename)
+            filename = "%s.%s" % (now.strftime("%Y-%m-%d-%H-%M-%S-%f"), file.filename.rsplit('.', 1)[1])
+            uploadedPath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            upscaledPath = os.path.join(app.config['UPSCALE_FOLDER'], filename)
+            file.save(uploadedPath)
 
-            # TODO: put image through restored TF model
+            # TODO: put image through restored TF model and save it at upscaledPath
 
-            # TODO: replace filename below with TF output saved in static/upscaled/
-            return url_for('static', filename=filename[7:]) 
+            # TODO: replace filename below with TF output saved at upscaledPath
+            return url_for('static', filename=uploadedPath[7:]) 
         else:
             print('File did not exist', file=sys.stderr)
     return 
