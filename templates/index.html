@@ -4,12 +4,13 @@
     <title>Image Upscaler</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dropzone.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
   </head>
 
   <body>
-    <input id="imageUploader" type="file" accept="image/*" onchange="displayImage(this);">
-    <button onclick="formSubmit();">Upscale</button>
-    <img id="preview" src="#">
+    Drag images here to upscale them!
+    <div id="previews" class="dropzone-previews"></div>
+    <button id="clickable">Browse</button>
   </body>
 </html>

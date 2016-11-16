@@ -32,4 +32,8 @@ nosetests.xml
 coverage.xml
 
 # Translations
-*.mo
+*.mo`
+
+# Uploads and downloads folders
+uploads/
+downloads/
