@@ -2,18 +2,60 @@
 import tensorflow as tf
 import numpy as np
 import sys
+from scipy import misc
 
-# TODO: define TF model like below
-# x = tf.placeholder("float", [None, 784])
-# sess = tf.Session()
+# Define TF model
+from modules.utils import *
+from modules.model import *
 
-# with tf.variable_scope("convolutional"):
-#     keep_prob = tf.placeholder("float")
-#     y2, variables = model.convolutional(x, keep_prob)
-# saver = tf.train.Saver(variables)
-# saver.restore(sess, "mnist/data/convolutional.ckpt")
-# def convolutional(input):
-#     return sess.run(y2, feed_dict={x: input, keep_prob: 1.0}).flatten().tolist()
+SCALE = 4
+INPUT_SIZE = Dimensions(1080//4, 1920//4)
+OUTPUT_SIZE = Dimensions(INPUT_SIZE.h*SCALE, INPUT_SIZE.w*SCALE)
+
+sess = tf.Session()
+
+def upscaler(in_tensor, in_channels, f_1, f_r, f_u, out_channels):
+    upscale_model = Model("Upscaler", in_tensor)
+    upscale_model.full_conv2d(3,f_1)
+    upscale_model.relu()
+
+    upscale_model.add_residual_block(f_1,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_1,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+    upscale_model.add_residual_block(f_r,f_r)
+
+    upscale_model.upscale([OUTPUT_SIZE.h//2,OUTPUT_SIZE.w//2])
+    upscale_model.full_conv2d(f_r,f_u, mapsize=3)
+    upscale_model.relu()
+    
+    upscale_model.upscale([OUTPUT_SIZE.h,OUTPUT_SIZE.w])
+    upscale_model.full_conv2d(f_u,f_u, mapsize=3)
+    upscale_model.relu()
+    
+    upscale_model.full_conv2d(f_u, 3, mapsize=1)
+    upscale_model.rgb_bound()
+    upscale_model.reshape([-1,OUTPUT_SIZE.h*OUTPUT_SIZE.w*3])
+    return upscale_model
+
+small_train = tf.placeholder('float32', shape = [None, INPUT_SIZE.h, INPUT_SIZE.w, 3])
+upscale_model = upscaler(small_train, 3, 64, 64, 64, 3)
+pred = tf.reshape(tf.cast(upscale_model.get_output(), dtype=tf.uint8),[-1,OUTPUT_SIZE.h, OUTPUT_SIZE.w, 3])
+init = tf.initialize_all_variables()
+sess.run(init)
+
+saver = tf.train.Saver(upscale_model.variables)
+saver.restore(sess, "s-1")
+
+def upscale_image(input):
+    return sess.run(pred, feed_dict={small_train: np.array([misc.imread(input, mode='RGB')])})[0]
 
 # Web app
 from flask import Flask, render_template, request, url_for
@@ -37,10 +79,9 @@ def upscaler():
             upscaledPath = os.path.join(app.config['UPSCALE_FOLDER'], filename)
             file.save(uploadedPath)
 
-            # TODO: put image through restored TF model and save it at upscaledPath
+            misc.imsave(upscaledPath, upscale_image(uploadedPath));
 
-            # TODO: replace filename below with TF output saved at upscaledPath
-            return url_for('static', filename=uploadedPath[7:]) 
+            return url_for('static', filename=upscaledPath) 
         else:
             print('File did not exist', file=sys.stderr)
     return 
