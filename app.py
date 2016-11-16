@@ -3,7 +3,17 @@ import tensorflow as tf
 import numpy as np
 import sys
 
-# TODO: define TF model
+# TODO: define TF model like below
+# x = tf.placeholder("float", [None, 784])
+# sess = tf.Session()
+
+# with tf.variable_scope("convolutional"):
+#     keep_prob = tf.placeholder("float")
+#     y2, variables = model.convolutional(x, keep_prob)
+# saver = tf.train.Saver(variables)
+# saver.restore(sess, "mnist/data/convolutional.ckpt")
+# def convolutional(input):
+#     return sess.run(y2, feed_dict={x: input, keep_prob: 1.0}).flatten().tolist()
 
 # Web app
 from flask import Flask, render_template, request, url_for
@@ -24,9 +34,9 @@ def upscaler():
             filename = os.path.join(app.config['UPLOAD_FOLDER'], "%s.%s" % (now.strftime("%Y-%m-%d-%H-%M-%S-%f"), file.filename.rsplit('.', 1)[1]))
             file.save(filename)
 
-            # TODO: run TF model
+            # TODO: put image through restored TF model
 
-            # TODO: replace filename below with TF output in static/upscaled/
+            # TODO: replace filename below with TF output saved in static/upscaled/
             return url_for('static', filename=filename[7:]) 
         else:
             print('File did not exist', file=sys.stderr)
