@@ -79,9 +79,9 @@ def upscaler():
             upscaledPath = os.path.join(app.config['UPSCALE_FOLDER'], filename)
             file.save(uploadedPath)
 
-            misc.imsave(upscaledPath, upscale_image(uploadedPath));
+            misc.imsave(upscaledPath, upscale_image(uploadedPath))
 
-            return url_for('static', filename=upscaledPath) 
+            return url_for('static', filename=upscaledPath[7:]) 
         else:
             print('File did not exist', file=sys.stderr)
     return 
