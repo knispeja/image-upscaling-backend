@@ -2,7 +2,16 @@ html, body {
     height: 100%;
 }
 
+p {
+    font-size: 24pt;
+}
+
 img {
     max-width: 100%;
     height: auto;
+}
+
+#arrow {
+    height: 64px;
+    width: 64px;
 }
